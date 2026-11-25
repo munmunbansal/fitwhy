@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitWhy — Constraint-Aware Role Matching</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --border: #e2e8f0;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --accent: #2563eb;
+            --accent-hover: #1d4ed8;
+            --badge-bg: #ecfdf5;
+            --badge-text: #047857;
+            --danger-bg: #fef2f2;
+            --danger-border: #fecaca;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        /* Navbar */
+        nav {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 18px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .brand {
+            font-weight: 700;
+            font-size: 24px;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .brand-dot {
+            width: 12px;
+            height: 12px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .nav-tag {
+            font-size: 14px;
+            color: var(--text-muted);
+            background: #f1f5f9;
+            padding: 6px 14px;
+            border-radius: 99px;
+            font-weight: 500;
+        }
+
+        /* Main Grid */
+        .container {
+            max-width: 1280px;
+            margin: 40px auto;
+            padding: 0 32px;
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 36px;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            nav { padding: 16px 20px; }
+            .container { grid-template-columns: 1fr; padding: 0 16px; margin: 24px auto; }
+        }
+
+        /* Left Form Card */
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 4px 10px -2px rgba(0, 0, 0, 0.04);
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            gap: 10px;
+        }
+        .panel-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin: 0;
+        }
+        .sample-btn {
+            background: #eff6ff;
+            color: var(--accent);
+            border: 1px solid #bfdbfe;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+        .sample-btn:hover { background: #dbeafe; }
+
+        .field { margin-bottom: 22px; }
+        label {
+            display: block;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1e293b;
+        }
+        .hint {
+            font-weight: 400;
+            color: var(--text-muted);
+            font-size: 13.5px;
+        }
+        textarea, input {
+            width: 100%;
+            padding: 13px 16px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 15.5px;
+            color: var(--text-main);
+            background: #f8fafc;
+            transition: border-color 0.15s, background 0.15s;
+        }
+        textarea:focus, input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+        input.veto-input {
+            border-color: var(--danger-border);
+            background: #fffafa;
+        }
+        input.veto-input:focus {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s;
+            margin-top: 8px;
+        }
+        .submit-btn:hover { background: var(--accent-hover); }
+        .submit-btn:disabled { background: #94a3b8; cursor: not-allowed; }
+
+        /* Right Results Column */
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            min-height: 32px;
+        }
+        .results-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin: 0;
+        }
+        .filter-pill {
+            font-size: 13.5px;
+            color: #b91c1c;
+            background: var(--danger-bg);
+            border: 1px solid var(--danger-border);
+            padding: 5px 12px;
+            border-radius: 99px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .empty-state {
+            background: var(--surface);
+            border: 1px dashed #cbd5e1;
+            border-radius: 16px;
+            padding: 56px 28px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 16px;
+        }
+
+        .job-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px 26px;
+            margin-bottom: 18px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .job-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -4px rgba(0, 0, 0, 0.07);
+        }
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .badge {
+            background: var(--badge-bg);
+            color: var(--badge-text);
+            font-size: 13.5px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 99px;
+        }
+        .loc {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        .job-title {
+            font-size: 19px;
+            font-weight: 700;
+            margin: 0 0 4px 0;
+            color: var(--text-main);
+        }
+        .company-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 14px;
+        }
+        .reason-box {
+            background: #f8fafc;
+            border-left: 4px solid var(--accent);
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            font-size: 15px;
+            color: #334155;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="brand"><span class="brand-dot"></span> FitWhy</div>
+        <div class="nav-tag">Semantic Matching + Hard Constraint Engine</div>
+    </nav>
+
+    <div class="container">
+        <!-- Left Input Panel -->
+        <div class="panel">
+            <div class="panel-header">
+                <h2 class="panel-title">Your Profile & Boundaries</h2>
+                <button class="sample-btn" onclick="fillSample()">Load Demo Data</button>
+            </div>
+
+            <div class="field">
+                <label>Skills & Past Projects</label>
+                <textarea id="resume" rows="4" placeholder="e.g., Built backend services in Python, Node.js, and SQL. Created data pipelines and LLM workflows..."></textarea>
+            </div>
+
+            <div class="field">
+                <label>What are you looking for next?</label>
+                <input id="wants" type="text" placeholder="e.g., High-ownership backend or AI engineering role at a startup" />
+            </div>
+
+            <div class="field">
+                <label>Dealbreakers <span class="hint">(Strictly excluded)</span></label>
+                <input id="never" class="veto-input" type="text" placeholder="e.g., No service bonds, no night shifts, no pure frontend" />
+            </div>
+
+            <button class="submit-btn" id="btn" onclick="findMatches()">Analyze & Match Roles</button>
+        </div>
+
+        <!-- Right Output Panel -->
+        <div>
+            <div class="results-header">
+                <h2 class="results-title">Curated Matches</h2>
+                <span id="filter-pill" class="filter-pill"></span>
+            </div>
+
+            <div id="results">
+                <div class="empty-state">
+                    Enter your background and dealbreakers on the left to filter roles and generate tailored fit explanations.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function fillSample() {
+            document.getElementById('resume').value = "Built backend systems in Python, Node.js, and SQL. Developed webhook ingestion pipelines with Redis queues and an AI agent using LangChain and BigQuery.";
+            document.getElementById('wants').value = "High-ownership backend or LLM agent engineering role at a fast-moving startup";
+            document.getElementById('never').value = "No service bonds, no rotational night shifts, no pure frontend or non-coding roles";
+        }
+
+        async function findMatches() {
+            const btn = document.getElementById('btn');
+            const resultsDiv = document.getElementById('results');
+            const filterPill = document.getElementById('filter-pill');
+
+            btn.disabled = true;
+            btn.innerText = "Evaluating roles & checking dealbreakers...";
+            filterPill.style.display = "none";
+            resultsDiv.innerHTML = `<div class="empty-state">Running constraint checks and ranking open roles...</div>`;
+
+            try {
+                const res = await fetch('/api/match', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        resume_text: document.getElementById('resume').value,
+                        wants: document.getElementById('wants').value,
+                        never_take: document.getElementById('never').value
+                    })
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || "Something went wrong");
+
+                filterPill.innerText = `${data.filtered_out_count} roles eliminated`;
+                filterPill.style.display = "inline-block";
+
+                resultsDiv.innerHTML = "";
+                data.recommendations.forEach(job => {
+                    resultsDiv.innerHTML += `
+                        <div class="job-card">
+                            <div class="card-top">
+                                <span class="badge">${job.fit_level}</span>
+                                <span class="loc">${job.location}</span>
+                            </div>
+                            <h3 class="job-title">${job.title}</h3>
+                            <div class="company-name">${job.company}</div>
+                            <div class="reason-box">${job.reason}</div>
+                        </div>
+                    `;
+                });
+            } catch (err) {
+                resultsDiv.innerHTML = `<div class="empty-state" style="color:#b91c1c; border-color:#fecaca;">Error: ${err.message}</div>`;
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Analyze & Match Roles";
+            }
+        }
+    </script>
+</body>
+</html>
