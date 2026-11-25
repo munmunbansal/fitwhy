@@ -8,7 +8,7 @@ from google.genai import types
 
 app = FastAPI()
 
-os.environ["GEMINI_API_KEY"] = os.getenv("")
+os.environ["GEMINI_API_KEY"] = os.getenv("GEMINI_API_KEY", "")
 client = genai.Client()
 
 JOBS_DB = [
